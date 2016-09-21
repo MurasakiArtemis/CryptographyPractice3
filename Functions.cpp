@@ -1,5 +1,6 @@
 #include <string>
 #include <fstream>
+#include <cstring>
 #include "Functions.hpp"
 
 using std::string;
@@ -48,7 +49,7 @@ void ECB(ifstream& fIn, ofstream& fOut, const char* key, const int block_size)
 	fIn.read(origin, block_size);
 	if(fIn.eof())
 	    for(int j = fIn.gcount()-1; j < block_size; j++)
-		origin[j] = ' ';
+		origin[j] = 'A';
 	permute(origin, result, key, block_size);
 	fOut.write(result, block_size);
     }
@@ -56,41 +57,56 @@ void ECB(ifstream& fIn, ofstream& fOut, const char* key, const int block_size)
     delete[] result;
 }
 
-void CBC(ifstream& fIn, ofstream& fOut, const char* key, const int block_size)
+void CBC(ifstream& fIn, ofstream& fOut, const char* key, const int block_size, bool encrypt)
 {
-    srand(time(nullptr));
     fIn.seekg(0, ios::end);
     int origin_size = int(fIn.tellg()) - 1;
     fIn.seekg(0, ios::beg);   
     char* origin = new char[block_size];
     char* result = new char[block_size];
-    char* aux = new char[block_size];
-    for(int i = 0; i < block_size; i++)
-	result[i] = rand()%block_size;
-    fOut.write(result, block_size);
+    //Específico para CBC
+    srand(time(nullptr));	      // 
+    char* aux = new char[block_size]; // 
+    if(encrypt)			      // 
+    {
+	for(int i = 0; i < block_size; i++) // 
+	    result[i] = i + 'A';	    //rand()%block_size;
+	fOut.write(result, block_size);	    // 
+    }
+    else			// 
+	fIn.read(aux, block_size); // 
+    origin_size -= block_size;	   //
+    //Específico para CBC
     for(int i = 0; i < origin_size; i += block_size)
     {
 	fIn.read(origin, block_size);
 	if(fIn.eof())
 	    for(int j = fIn.gcount()-1; j < block_size; j++)
-		origin[j] = ' ';
-	//Mode of operation
-	XOR(origin, result, aux, block_size);
-	permute(aux, result, key, block_size);
-	//
+		origin[j] = 'A';
+	//Específico para CBC
+	if(encrypt)		// 
+	{			// 
+	    XOR(origin, result, aux, block_size); // 
+	    permute(aux, result, key, block_size); // 
+	}
+	else			// 
+	{
+	    permute(origin, result, key, block_size); // 
+	    XOR(result, aux, result, block_size);     // 
+	    memcpy(aux, origin, block_size);	      // 
+	}
+	//Específico para CBC
 	fOut.write(result, block_size);
     }
     delete[] origin;
     delete[] result;
-    delete[] aux;
+    delete[] aux;//
 }
 
-void XOR(char* argument1, char* argument2, char* result, char* array_size)
+void XOR(char* argument1, char* argument2, char* result, int array_size)
 {
     for(int i = 0; i < array_size; i++)
-    {
 	result[i] = ((argument1[i] - 'A') ^ (argument2[i] - 'A'))%('A' - 'Z') + 'A';
-    }
 }
 
 void permute(char* origin, char* result, const char* key, const int block_size)

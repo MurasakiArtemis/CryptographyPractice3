@@ -58,7 +58,7 @@ int main(int argc, char* argv[])
 	fIn.close();
 	fIn.open(argv[3], ios::binary);
 	ofstream fOut(argv[4], ios::binary);
-	ECB(fIn, fOut, key, block_size);
+        CBC(fIn, fOut, key, block_size, opcion == "-e");
 	fIn.close();
 	fOut.close();
 	delete[] key;
