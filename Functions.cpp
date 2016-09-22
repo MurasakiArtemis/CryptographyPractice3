@@ -37,79 +37,99 @@ void generateKey(const string& filename, const int permutation_size)
     delete[] inverse_key;
 }
 
-void ECB(ifstream& fIn, ofstream& fOut, const char* key, const int block_size)
+void Process_Request(ifstream& fIn, ofstream& fOut, const char* key, const int block_size, const bool encrypt, const string& operation_mode)
 {
+    srand(time(nullptr));
     fIn.seekg(0, ios::end);
     int origin_size = int(fIn.tellg()) - 1;
     fIn.seekg(0, ios::beg);   
     char* origin = new char[block_size];
     char* result = new char[block_size];
-    for(int i = 0; i < origin_size; i += block_size)
+    char* aux = nullptr;
+    char* IV = nullptr;
+    if(operation_mode != "ECB")
     {
-	fIn.read(origin, block_size);
-	if(fIn.eof())
-	    for(int j = fIn.gcount()-1; j < block_size; j++)
-		origin[j] = 'A';
-	permute(origin, result, key, block_size);
-	fOut.write(result, block_size);
-    }
-    delete[] origin;
-    delete[] result;
-}
-
-void CBC(ifstream& fIn, ofstream& fOut, const char* key, const int block_size, bool encrypt)
-{
-    fIn.seekg(0, ios::end);
-    int origin_size = int(fIn.tellg()) - 1;
-    fIn.seekg(0, ios::beg);   
-    char* origin = new char[block_size];
-    char* result = new char[block_size];
-    //Específico para CBC
-    srand(time(nullptr));	      // 
-    char* aux = new char[block_size]; // 
-    if(encrypt)			      // 
-    {
-	for(int i = 0; i < block_size; i++) // 
-	    result[i] = i + 'A';	    //rand()%block_size;
-	fOut.write(result, block_size);	    // 
-    }
-    else			// 
-	fIn.read(aux, block_size); // 
-    origin_size -= block_size;	   //
-    //Específico para CBC
-    for(int i = 0; i < origin_size; i += block_size)
-    {
-	fIn.read(origin, block_size);
-	if(fIn.eof())
-	    for(int j = fIn.gcount()-1; j < block_size; j++)
-		origin[j] = 'A';
-	//Específico para CBC
-	if(encrypt)		// 
-	{			// 
-	    XOR(origin, result, aux, block_size); // 
-	    permute(aux, result, key, block_size); // 
-	}
-	else			// 
+	aux = new char[block_size];
+	IV = new char[block_size];
+	if(encrypt)
 	{
-	    permute(origin, result, key, block_size); // 
-	    XOR(result, aux, result, block_size);     // 
-	    memcpy(aux, origin, block_size);	      // 
+	    for(int i = 0; i < block_size; i++)
+	        IV[i] = i + 'A';
+	    fOut.write(IV, block_size);
+	    if(operation_mode == "CBC")
+		memcpy(result, IV, block_size);
 	}
-	//Específico para CBC
+	else
+	{
+	    fIn.read(IV, block_size);
+	    origin_size -= block_size;
+	    if(operation_mode == "CBC")
+		memcpy(aux, IV, block_size);
+	}
+    }
+    for(int i = 0; i < origin_size; i += block_size)
+    {
+	fIn.read(origin, block_size);
+	if(fIn.eof())
+	    for(int j = fIn.gcount()-1; j < block_size; j++)
+		origin[j] = 'A';
+	if(operation_mode == "ECB")
+	    permute(origin, result, key, block_size);
+	else if(operation_mode == "CBC")
+	    CBC(origin, aux, result, key, block_size, encrypt);
+	else if(operation_mode == "CTR")
+	    CTR(origin, IV, result, key, block_size, encrypt);
 	fOut.write(result, block_size);
     }
     delete[] origin;
     delete[] result;
-    delete[] aux;//
+    if(aux != nullptr)
+    {
+	delete[] aux;
+	delete[] IV;
+    }
 }
 
-void XOR(char* argument1, char* argument2, char* result, int array_size)
+void CBC(const char* origin, char* aux, char* result, const char* key, const int block_size, bool encrypt)
+{
+    if(encrypt)
+    {
+	XOR(origin, result, aux, block_size);
+	permute(aux, result, key, block_size);
+    }
+    else
+    {
+	permute(origin, result, key, block_size);
+	XOR(result, aux, result, block_size);
+	memcpy(aux, origin, block_size);
+    }
+}
+
+void CTR(const char* origin, char* IV, char* result, const char* key, const int block_size, bool encrypt)
+{
+    permute(IV, result, key, block_size);
+    XOR(result, origin, result, block_size);
+    add(IV, 1, block_size);
+}
+
+void add(char* array, int number, int array_size)
+{
+    for(int i = array_size - 1; i >= 0; i++)
+    {
+	array[i] = (array[i] - 'A' + number)%26 + 'A';
+	if(array[i] == 'A' && number != 0)
+	    number = 1;
+	else break;
+    }
+}
+
+void XOR(const char* argument1, const char* argument2, char* result, int array_size)
 {
     for(int i = 0; i < array_size; i++)
-	result[i] = ((argument1[i] - 'A') ^ (argument2[i] - 'A'))%('A' - 'Z') + 'A';
+	result[i] = ((argument1[i] - 'A') ^ (argument2[i] - 'A'))%('Z' - 'A') + 'A';
 }
 
-void permute(char* origin, char* result, const char* key, const int block_size)
+void permute(const char* origin, char* result, const char* key, const int block_size)
 {
     for(int j = 0; j < block_size; j++)
 	result[int(key[j])] = origin[j];
