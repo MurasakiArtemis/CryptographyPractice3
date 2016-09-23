@@ -84,13 +84,18 @@
 	\pagenumbering{arabic}
 	\section{Theory}
 		\subsection{How do permutations work}
+		A permutation in cryptography consists in a rearrangement of the elements in a specified order, where that order is both the key and the function to encrypt.\cite{PermutationCiphers}
 		\subsection{How does CBC work}
+		CBC is an operation mode that uses a initialization vector (IV) and realizes an XOR operation with the plaintext, whose result is then encrypted to obtain the cyphertext. In the following rounds the IV is substituted with the previous ciphertext. For decryption it uses the ciphertext which is decrypted and then an XOR is done with the IV. For the following rounds the IV is replaced with the previous ciphertext.\cite{BlockCipher}
 		\subsection{How does CTR work}
+		The CTR operation mode consists in calculating an XOR between the plaintext and the encryption of the IV for encryption. For decryption it calculates the XOR between the ciphertext and the encryption of the IV.
+		On each round the IV is incremented by 1.\cite{BlockCipher}
 	\section{Functions}
 		\subsection{ECB}
 		\delimitCodeScript{cpp}{Functions}{Key generation}{18}{30}
 		The key generation creates a permutation and its inverse, then save them in a file with the specified name.
 		\delimitCodeScript{cpp}{Functions}{Main function}{40}{91}
+		
 		This function is used to partition the plain or cipher text and to call the specified mode of operation.
 		
 		The IV is created randomly in the case of encryption and extracted from the beginning of the ciphertext if decryption.
