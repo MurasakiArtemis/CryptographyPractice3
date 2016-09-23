@@ -79,7 +79,6 @@
 	\pagenumbering{roman}
 	\tableofcontents
 	\listoffigures
-	\listoftables
 	\newpage
 	\pagenumbering{arabic}
 	\section{Theory}
@@ -105,6 +104,12 @@
 		\subsection{CTR}
 		\delimitCodeScript{cpp}{Functions}{CTR operation mode}{108}{113}
 		If the CTR mode is specified, the key used is for encryption regardless the option used. In any other case, for encryption, the second key (inverse permutation) is extracted.
+	\section{Screenshots}
+	\subsection{Usage}
+		\imagen[width=\linewidth]{Picture1}{Usage of the program}{\label{Usage}}
+	\subsection{Results}
+		\imagen[width=\linewidth]{Picture2}{Original plaintext and the plaintext obtained after encryption and decryption}{\label{Plaintext}}
+		\imagen[width=\linewidth]{Picture3}{Ciphertext obtained using the different modes of operation}{\label{Ciphertext}}
 	\bibliographystyle{IEEEtran}
 	\bibliography{Bibliography}
 \end{document}
