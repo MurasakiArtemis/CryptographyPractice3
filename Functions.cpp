@@ -37,7 +37,11 @@ void generateKey(const string& filename, const int permutation_size)
     delete[] inverse_key;
 }
 
-void Process_Request(ifstream& fIn, ofstream& fOut, const char* key, const int block_size, const bool encrypt, const string& operation_mode)
+void Process_Request(ifstream& fIn, ofstream& fOut,
+		     const char* key,
+		     const int block_size,
+		     const bool encrypt,
+		     const string& operation_mode)
 {
     srand(time(nullptr));
     fIn.seekg(0, ios::end);
@@ -90,7 +94,9 @@ void Process_Request(ifstream& fIn, ofstream& fOut, const char* key, const int b
     }
 }
 
-void CBC(const char* origin, char* aux, char* result, const char* key, const int block_size, bool encrypt)
+void CBC(const char* origin, char* aux, char* result,
+	 const char* key, const int block_size,
+	 bool encrypt)
 {
     if(encrypt)
     {
@@ -105,7 +111,9 @@ void CBC(const char* origin, char* aux, char* result, const char* key, const int
     }
 }
 
-void CTR(const char* origin, char* IV, char* result, const char* key, const int block_size, bool encrypt)
+void CTR(const char* origin, char* IV, char* result,
+	 const char* key, const int block_size,
+	 bool encrypt)
 {
     permute(IV, result, key, block_size);
     XOR(result, origin, result, block_size);

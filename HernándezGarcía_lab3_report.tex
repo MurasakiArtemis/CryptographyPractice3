@@ -93,16 +93,16 @@
 		\subsection{ECB}
 		\delimitCodeScript{cpp}{Functions}{Key generation}{18}{30}
 		The key generation creates a permutation and its inverse, then save them in a file with the specified name.
-		\delimitCodeScript{cpp}{Functions}{Main function}{40}{91}
+		\delimitCodeScript{cpp}{Functions}{Main function}{40}{95}
 		
 		This function is used to partition the plain or cipher text and to call the specified mode of operation.
 		
 		The IV is created randomly in the case of encryption and extracted from the beginning of the ciphertext if decryption.
 		\subsection{CBC}
-		\delimitCodeScript{cpp}{Functions}{CBC operation mode}{93}{106}
+		\delimitCodeScript{cpp}{Functions}{CBC operation mode}{97}{113}
 		The function to cipher is called each round, if the encryption is solicited, then the result array starts as the IV which is randomly generated, on the other case, the aux array is the one that contains the IV.
 		\subsection{CTR}
-		\delimitCodeScript{cpp}{Functions}{CTR operation mode}{108}{113}
+		\delimitCodeScript{cpp}{Functions}{CTR operation mode}{114}{121}
 		If the CTR mode is specified, the key used is for encryption regardless the option used. In any other case, for encryption, the second key (inverse permutation) is extracted.
 	\section{Screenshots}
 	\subsection{Usage}
